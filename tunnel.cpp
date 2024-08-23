@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
         cout << "ssh_connect():  Connected session." << endl;
         ssh_userauth_none(session, NULL);
         nMethod = ssh_userauth_list(session, NULL);
-        if ((nMethod & SSH_AUTH_METHOD_NONE && authenticateNone(session) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_PUBLICKEY && ssh_userauth_publickey_auto(session, pw->pw_name, NULL) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_INTERACTIVE && authenticateKbdint(session) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_PASSWORD && authenticatePassword(session) == SSH_AUTH_SUCCESS))
+        if ((nMethod & SSH_AUTH_METHOD_PUBLICKEY && ssh_userauth_publickey_auto(session, pw->pw_name, NULL) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_INTERACTIVE && authenticateKbdint(session) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_PASSWORD && authenticatePassword(session) == SSH_AUTH_SUCCESS))
         {
           bool bExit = false;
           char szBuffer[65536];
@@ -276,6 +276,7 @@ int main(int argc, char *argv[])
                       else
                       {
                         cerr << strPrefix << "->ssh_channel_open_forward() error:  " << ssh_get_error(session) << endl;
+                        ssh_channel_send_eof(channel);
                         ssh_channel_free(channel);
                         close(fdClient);
                       }
@@ -380,6 +381,7 @@ int main(int argc, char *argv[])
             removals.unique();
             while (!removals.empty())
             {
+              ssh_channel_send_eof(conns[removals.front()].channel);
               ssh_channel_free(conns[removals.front()].channel);
               cout << strPrefix << "->ssh_channel_free():  Freed channel." << endl;
               close(removals.front());
@@ -443,17 +445,32 @@ int main(int argc, char *argv[])
                     {
                       cerr << strPrefix << "->" << ((!bConnected[1])?"socket":"connect") << "(" << errno << ") error:  " << strerror(errno) << endl;
                     }
+                    ssh_channel_send_eof(channel);
                     ssh_channel_free(channel);
                   }
                 }
                 else
                 {
                   cerr << strPrefix << "->ssh_channel_accept_forward() error:  Invalid port." << endl;
+                  ssh_channel_send_eof(channel);
                   ssh_channel_free(channel);
                 }
               }
             }
             // }}}
+          }
+          for (auto &loc : locs)
+          {
+            close(loc.first);
+            cout << strPrefix << "->close():  Closed listening socket." << endl;
+          }
+          for (auto &conn : conns)
+          {
+            ssh_channel_send_eof(conns.second.channel);
+            ssh_channel_free(conn.second.channel);
+            cout << strPrefix << "->ssh_channel_free():  Freed channel." << endl;
+            close(conn.first);
+            cout << strPrefix << "->close():  Closed client socket." << endl;
           }
         }
         else
