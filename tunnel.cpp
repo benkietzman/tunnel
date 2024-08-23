@@ -133,7 +133,8 @@ int main(int argc, char *argv[])
         cout << "ssh_connect():  Connected session." << endl;
         ssh_userauth_none(session, NULL);
         nMethod = ssh_userauth_list(session, NULL);
-        if ((nMethod & SSH_AUTH_METHOD_PUBLICKEY && ssh_userauth_publickey_auto(session, pw->pw_name, NULL) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_INTERACTIVE && authenticateKbdint(session) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_PASSWORD && authenticatePassword(session) == SSH_AUTH_SUCCESS))
+        if ((nMethod & SSH_AUTH_METHOD_PUBLICKEY && ssh_userauth_publickey_auto(session, pw->pw_name, NULL) == SSH_AUTH_SUCCESS))
+        //if ((nMethod & SSH_AUTH_METHOD_PUBLICKEY && ssh_userauth_publickey_auto(session, pw->pw_name, NULL) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_INTERACTIVE && authenticateKbdint(session) == SSH_AUTH_SUCCESS) || (nMethod & SSH_AUTH_METHOD_PASSWORD && authenticatePassword(session) == SSH_AUTH_SUCCESS))
         {
           bool bExit = false;
           char szBuffer[65536];
