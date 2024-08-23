@@ -24,7 +24,7 @@ obj:
 
 install: bin/tunnel $(prefix)/bin
 	install --mode=755 bin/tunnel $(prefix)/bin/
-	install --mode=644 tunnel.service /etc/systemd/user/
+	if [ ! -f /etc/systemd/user/tunnel.service ]; then install --mode=644 tunnel.service /etc/systemd/user/; fi;
 
 $(prefix)/bin:
 	mkdir $(prefix)/bin
