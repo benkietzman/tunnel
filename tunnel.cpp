@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
           }
           for (auto &conn : conns)
           {
-            ssh_channel_send_eof(conns.second.channel);
+            ssh_channel_send_eof(conn.second.channel);
             ssh_channel_free(conn.second.channel);
             cout << strPrefix << "->ssh_channel_free():  Freed channel." << endl;
             close(conn.first);
