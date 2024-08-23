@@ -1,0 +1,11 @@
+[Unit]
+Description=Tunnel
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tunnel
+Restart=on-failure
+StandardOutput=file:%h/tunnel.log
+
+[Install]
+WantedBy=default.target
