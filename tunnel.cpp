@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
                 if (FD_ISSET(loc.first, &fds))
                 {
                   int fdClient;
-                  sockaddr_in cli_addr;
+                  sockaddr_in6 cli_addr;
                   socklen_t clilen = sizeof(cli_addr);
                   if ((fdClient = accept(loc.first, (sockaddr *)&cli_addr, &clilen)) >= 0)
                   {
